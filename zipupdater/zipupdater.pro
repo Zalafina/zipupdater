@@ -4,6 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 QMAKE_LFLAGS += /ENTRY:mainCRTStartup
+QMAKE_LFLAGS += -NODEFAULTLIB:msvcrt.lib
 
 # LIBS += -L$$PWD/win_lib
 LIBS += User32.lib
@@ -17,6 +18,7 @@ HEADERS += \
     zlib-ng/include/zlib-ng.h
 
 
+DEFINES += HAVE_ZLIB
 DEFINES += _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE
 DEFINES += MZ_ZIP_NO_CRYPTO
 INCLUDEPATH += $$PWD/minizip-ng
@@ -28,6 +30,7 @@ HEADERS += \
     minizip-ng/mz_strm_buf.h \
     minizip-ng/mz_strm_mem.h \
     minizip-ng/mz_strm_split.h \
+    minizip-ng/mz_strm_zlib.h \
     minizip-ng/mz_zip.h \
     minizip-ng/mz_zip_rw.h
 
@@ -38,6 +41,7 @@ SOURCES += \
     minizip-ng/mz_strm_buf.c \
     minizip-ng/mz_strm_mem.c \
     minizip-ng/mz_strm_split.c \
+    minizip-ng/mz_strm_zlib.c \
     minizip-ng/mz_zip.c \
     minizip-ng/mz_zip_rw.c \
     minizip-ng/mz_os_win32.c \

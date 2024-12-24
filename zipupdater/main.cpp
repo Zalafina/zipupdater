@@ -86,11 +86,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // TCHAR currentPath[MAX_PATH] = TEXT("");
-    // GetModuleFileName(nullptr, currentPath, MAX_PATH);
-    // fs::path programDir = fs::path(currentPath).parent_path();
     std::string currentPath = ".";
-
     if (!extractZip(zipFilePath, currentPath)) {
         MessageBox(nullptr, L"Failed to unzip the ZIP file.", L"ZipUpdater", MB_ICONERROR);
         return 1;
