@@ -1,0 +1,16 @@
+# Qt generate file types
+
+.vscode/
+zipupdater/.vscode/
+zipupdater/*.pro.user
+zipupdater/*.pro.user
+zipupdater/*.pro.user.*
+zipupdater/*.moc
+zipupdater/*.bin
+zipupdater/moc_*.cpp
+zipupdater/qrc_*.cpp
+zipupdater/ui_*.h
+zipupdater/Makefile*
+zipupdater/*-build-*
+zipupdater/build/
+zipupdater/out/
