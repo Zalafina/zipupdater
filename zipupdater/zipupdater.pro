@@ -1,15 +1,47 @@
 TEMPLATE = app
-CONFIG += console c++17
+CONFIG += c++17
 CONFIG -= app_bundle
 CONFIG -= qt
 
+QMAKE_LFLAGS += /ENTRY:mainCRTStartup
+
+# LIBS += -L$$PWD/win_lib
 LIBS += User32.lib
 
-contains(DEFINES, WIN64) {
-    message("WIN x64 Release Build")
-} else {
-    message("WIN x86 Release Build")
-}
+LIBS += -L$$PWD/zlib-ng/lib
+# LIBS += zlibstatic-ng.lib
+
+INCLUDEPATH += $$PWD/zlib-ng/include
+
+HEADERS += \
+    zlib-ng/include/zlib-ng.h
+
+
+DEFINES += _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE
+DEFINES += MZ_ZIP_NO_CRYPTO
+INCLUDEPATH += $$PWD/minizip-ng
+
+HEADERS += \
+    minizip-ng/mz.h \
+    minizip-ng/mz_os.h \
+    minizip-ng/mz_strm.h \
+    minizip-ng/mz_strm_buf.h \
+    minizip-ng/mz_strm_mem.h \
+    minizip-ng/mz_strm_split.h \
+    minizip-ng/mz_zip.h \
+    minizip-ng/mz_zip_rw.h
+
+SOURCES += \
+    minizip-ng/mz_crypt.c \
+    minizip-ng/mz_os.c \
+    minizip-ng/mz_strm.c \
+    minizip-ng/mz_strm_buf.c \
+    minizip-ng/mz_strm_mem.c \
+    minizip-ng/mz_strm_split.c \
+    minizip-ng/mz_zip.c \
+    minizip-ng/mz_zip_rw.c \
+    minizip-ng/mz_os_win32.c \
+    minizip-ng/mz_strm_os_win32.c
 
 SOURCES += \
         main.cpp
