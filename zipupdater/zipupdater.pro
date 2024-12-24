@@ -4,7 +4,6 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 QMAKE_LFLAGS += /ENTRY:mainCRTStartup
-QMAKE_LFLAGS += -NODEFAULTLIB:msvcrt.lib
 
 # LIBS += -L$$PWD/win_lib
 LIBS += User32.lib
