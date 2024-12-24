@@ -97,6 +97,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    MessageBox(nullptr, L"Operation completed successfully!", L"ZipUpdater", MB_ICONINFORMATION);
+    MessageBox(nullptr, L"ZIP file extract and copy completed successfully!", L"ZipUpdater", MB_ICONINFORMATION);
     return 0;
 }
