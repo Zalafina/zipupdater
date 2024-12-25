@@ -30,6 +30,8 @@ bool extractZip(const std::string &zipFile, const std::string &outputDir) {
         return false;
     }
 
+    mz_zip_reader_set_encoding(reader, MZ_ENCODING_UTF8);
+
     err = mz_zip_reader_open_file(reader, zipFile.c_str());
     if (err != MZ_OK) {
         std::cerr << "Error opening ZIP file: " << zipFile << " (error code: " << err << ")" << std::endl;
