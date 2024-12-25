@@ -72,6 +72,9 @@ bool copyDirectory(const fs::path& source, const fs::path& destination) {
 }
 
 int main(int argc, char* argv[]) {
+
+    SetProcessDPIAware();
+
     if (argc != 4) {
         MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <extract_path> <target_path>", L"ZipUpdater", MB_ICONERROR);
         return 1;
