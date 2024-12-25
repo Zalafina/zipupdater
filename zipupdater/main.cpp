@@ -17,6 +17,27 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+// Function to convert GBK encoded std::string to UTF-8 std::string
+std::string gbkToUtf8(const std::string &gbkStr) {
+    // Step 1: Convert GBK to UTF-16 (wstring)
+    int wstrLen = MultiByteToWideChar(CP_ACP, 0, gbkStr.c_str(), -1, nullptr, 0);
+    if (wstrLen == 0) {
+        return ""; // Conversion failed
+    }
+    std::wstring wstr(wstrLen, 0);
+    MultiByteToWideChar(CP_ACP, 0, gbkStr.c_str(), -1, &wstr[0], wstrLen);
+
+    // Step 2: Convert UTF-16 to UTF-8
+    int utf8Len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (utf8Len == 0) {
+        return ""; // Conversion failed
+    }
+    std::string utf8Str(utf8Len, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8Str[0], utf8Len, nullptr, nullptr);
+
+    return utf8Str;
+}
+
 bool extractZip(const std::string &zipFile, const std::string &outputDir) {
     void *reader = nullptr;
     int32_t err = MZ_OK;
@@ -90,13 +111,14 @@ int main(int argc, char* argv[]) {
     SetCurrentDirectory(exeDir.c_str()); // Set it as the current working directory
 
     // Parse arguments
-    std::string zipFilePath = argv[1];
+    std::string zipFilePath_ori = argv[1];
+    std::string zipFilePath = gbkToUtf8(zipFilePath_ori);
     std::string copyFromPath = argv[2];
     std::string copyToPath = argv[3];
     bool useChinese = (argc == 5 && std::string(argv[4]) == "--chinese");
 
     // Check if the ZIP file exists
-    if (!fs::exists(zipFilePath)) {
+    if (!fs::exists(zipFilePath_ori)) {
         MessageBox(nullptr,
                    useChinese ? L"ZIP 文件不存在！" : L"The ZIP file does not exist!",
                    L"ZipUpdater",
