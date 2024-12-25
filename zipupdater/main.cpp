@@ -72,34 +72,54 @@ bool copyDirectory(const fs::path& source, const fs::path& destination) {
 }
 
 int main(int argc, char* argv[]) {
-
+    // Set DPI awareness for high-DPI displays
     SetProcessDPIAware();
 
-    if (argc != 4) {
-        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path>", L"ZipUpdater", MB_ICONERROR);
+    // Check for the correct number of arguments
+    if ((argc < 4) || (argc > 5)) {
+        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path> [--chinese]", L"ZipUpdater", MB_ICONERROR);
         return 1;
     }
 
+    // Parse arguments
     std::string zipFilePath = argv[1];
     std::string copyFromPath = argv[2];
     std::string copyToPath = argv[3];
+    bool useChinese = (argc == 5 && std::string(argv[4]) == "--chinese");
 
+    // Check if the ZIP file exists
     if (!fs::exists(zipFilePath)) {
-        MessageBox(nullptr, L"The ZIP file does not exist!", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr,
+                   useChinese ? L"ZIP 文件不存在！" : L"The ZIP file does not exist!",
+                   L"ZipUpdater",
+                   MB_ICONERROR);
         return 1;
     }
 
+    // Extract the ZIP file
     std::string currentPath = ".";
     if (!extractZip(zipFilePath, currentPath)) {
-        MessageBox(nullptr, L"Failed to unzip the ZIP file.", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr,
+                   useChinese ? L"解压 ZIP 文件时发生错误！" : L"An error occurred while extracting the ZIP file!",
+                   L"ZipUpdater",
+                   MB_ICONERROR);
         return 1;
     }
 
+    // Copy the files
     if (!copyDirectory(copyFromPath, copyToPath)) {
-        MessageBox(nullptr, L"Failed to copy files to the target path.", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr,
+                   useChinese ? L"复制文件到目标路径失败！" : L"Failed to copy files to the target path.",
+                   L"ZipUpdater",
+                   MB_ICONERROR);
         return 1;
     }
 
-    MessageBox(nullptr, L"The ZIP file has been extracted and copied successfully!", L"ZipUpdater", MB_ICONINFORMATION);
+    // Show success message
+    MessageBox(nullptr,
+               useChinese ? L"ZIP 文件解压并复制成功！" : L"The ZIP file has been extracted and copied successfully!",
+               L"ZipUpdater",
+               MB_ICONINFORMATION);
+
     return 0;
 }

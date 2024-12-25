@@ -6,6 +6,11 @@ CONFIG -= qt
 QMAKE_LFLAGS += /ENTRY:mainCRTStartup
 QMAKE_LFLAGS_DEBUG += /NODEFAULTLIB:msvcrt.lib
 
+win32-msvc*: {
+    QMAKE_CFLAGS *= /utf-8
+    QMAKE_CXXFLAGS *= /utf-8
+}
+
 # LIBS += -L$$PWD/win_lib
 LIBS += User32.lib
 
