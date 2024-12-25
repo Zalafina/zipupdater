@@ -77,9 +77,15 @@ int main(int argc, char* argv[]) {
 
     // Check for the correct number of arguments
     if ((argc < 4) || (argc > 5)) {
-        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path> [--chinese]", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path> [--chinese]", L"ZipUpdater", MB_ICONWARNING);
         return 1;
     }
+
+    // Set the working directory to the executable's directory
+    TCHAR exePath[MAX_PATH];
+    GetModuleFileName(nullptr, exePath, MAX_PATH); // Get the full path of the executable
+    std::wstring exeDir = fs::path(exePath).parent_path().wstring(); // Get the directory of the executable
+    SetCurrentDirectory(exeDir.c_str()); // Set it as the current working directory
 
     // Parse arguments
     std::string zipFilePath = argv[1];
@@ -110,6 +116,18 @@ int main(int argc, char* argv[]) {
     if (!copyDirectory(copyFromPath, copyToPath)) {
         MessageBox(nullptr,
                    useChinese ? L"复制文件到目标路径失败！" : L"Failed to copy files to the target path.",
+                   L"ZipUpdater",
+                   MB_ICONERROR);
+        return 1;
+    }
+
+    // Delete the copyFromPath directory and all its contents
+    try {
+        fs::remove_all(copyFromPath); // Recursively delete the directory and its contents
+    } catch (const std::exception& e) {
+        (void)(e);
+        MessageBox(nullptr,
+                   useChinese ? L"删除源目录时发生错误！" : L"An error occurred while deleting the copyfrom directory!",
                    L"ZipUpdater",
                    MB_ICONERROR);
         return 1;
