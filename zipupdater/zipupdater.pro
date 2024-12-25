@@ -3,6 +3,15 @@ CONFIG += c++17
 CONFIG -= app_bundle
 CONFIG -= qt
 
+CONFIG(debug, debug|release){
+    DEFINES += DEBUG_LOG_ON
+    message("Debug Build")
+}
+
+CONFIG(release, debug|release){
+    message("Release Build")
+}
+
 QMAKE_CFLAGS *= -utf-8
 QMAKE_CXXFLAGS *= -utf-8
 

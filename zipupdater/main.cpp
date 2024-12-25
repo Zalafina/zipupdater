@@ -43,11 +43,15 @@ bool extractZip(const std::string &zipFile, const std::string &outputDir) {
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
 
+#ifdef DEBUG_LOG_ON
     std::cout << "Extracting archive: " << zipFile << std::endl;
+#endif
 
     reader = mz_zip_reader_create();
     if (!reader) {
+#ifdef DEBUG_LOG_ON
         std::cerr << "Failed to create ZIP reader." << std::endl;
+#endif
         return false;
     }
 
@@ -55,22 +59,30 @@ bool extractZip(const std::string &zipFile, const std::string &outputDir) {
 
     err = mz_zip_reader_open_file(reader, zipFile.c_str());
     if (err != MZ_OK) {
+#ifdef DEBUG_LOG_ON
         std::cerr << "Error opening ZIP file: " << zipFile << " (error code: " << err << ")" << std::endl;
+#endif
         mz_zip_reader_delete(&reader);
         return false;
     }
 
     err = mz_zip_reader_save_all(reader, outputDir.c_str());
     if (err == MZ_END_OF_LIST) {
+#ifdef DEBUG_LOG_ON
         std::cout << "No files found in the archive." << std::endl;
+#endif
         err = MZ_OK;
     } else if (err != MZ_OK) {
+#ifdef DEBUG_LOG_ON
         std::cerr << "Error saving entries to disk: " << zipFile << " (error code: " << err << ")" << std::endl;
+#endif
     }
 
     err_close = mz_zip_reader_close(reader);
     if (err_close != MZ_OK) {
+#ifdef DEBUG_LOG_ON
         std::cerr << "Error closing ZIP reader (error code: " << err_close << ")" << std::endl;
+#endif
         err = err_close;
     }
 
@@ -88,7 +100,10 @@ bool copyDirectory(const fs::path& source, const fs::path& destination) {
             fs::copy(path, destination / relativePathStr, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
         }
     } catch (fs::filesystem_error& e) {
+        (void)(e);
+#ifdef DEBUG_LOG_ON
         std::cerr << "Error: " << e.what() << std::endl;
+#endif
         return false;
     }
     return true;
