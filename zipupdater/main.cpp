@@ -76,16 +76,16 @@ int main(int argc, char* argv[]) {
     SetProcessDPIAware();
 
     if (argc != 4) {
-        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <extract_path> <target_path>", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path>", L"ZipUpdater", MB_ICONERROR);
         return 1;
     }
 
     std::string zipFilePath = argv[1];
-    std::string extractPath = argv[2];
+    std::string copyFromPath = argv[2];
     std::string copyToPath = argv[3];
 
     if (!fs::exists(zipFilePath)) {
-        MessageBox(nullptr, L"ZIP file does not exist!", L"ZipUpdater", MB_ICONERROR);
+        MessageBox(nullptr, L"The ZIP file does not exist!", L"ZipUpdater", MB_ICONERROR);
         return 1;
     }
 
@@ -95,8 +95,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (!copyDirectory(extractPath, copyToPath)) {
-        MessageBox(nullptr, L"Failed to copy files to target path.", L"ZipUpdater", MB_ICONERROR);
+    if (!copyDirectory(copyFromPath, copyToPath)) {
+        MessageBox(nullptr, L"Failed to copy files to the target path.", L"ZipUpdater", MB_ICONERROR);
         return 1;
     }
 
