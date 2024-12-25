@@ -104,8 +104,27 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // If zipupdater_tempdir exists, remove all its contents. Otherwise, create an empty directory
+    const std::string tempDir = "zipupdater_tempdir";
+    try {
+        if (fs::exists(tempDir)) {
+            fs::remove_all(tempDir); // Remove all contents in zipupdater_tempdir
+        }
+        fs::create_directory(tempDir); // Create an empty zipupdater_tempdir
+    } catch (const std::exception& e) {
+        (void)(e);
+        MessageBox(nullptr,
+                   useChinese ? L"创建临时目录时发生错误！" : L"An error occurred while creating the temporary directory!",
+                   L"ZipUpdater",
+                   MB_ICONERROR);
+        return 1;
+    }
+
+    // Update copyFromPath to zipupdater_tempdir/<copyFromPath>
+    copyFromPath = tempDir + "/" + copyFromPath;
+
     // Extract the ZIP file
-    std::string currentPath = ".";
+    std::string currentPath = "zipupdater_tempdir";
     if (!extractZip(zipFilePath, currentPath)) {
         MessageBox(nullptr,
                    useChinese ? L"解压 ZIP 文件时发生错误！" : L"An error occurred while extracting the ZIP file!",
@@ -113,6 +132,8 @@ int main(int argc, char* argv[]) {
                    MB_ICONERROR);
         return 1;
     }
+
+    // copyFromPath设置为 zipupdater_tempdir\<copyFromPath>
 
     // Copy the files
     if (!copyDirectory(copyFromPath, copyToPath)) {
@@ -123,9 +144,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Delete the copyFromPath directory and all its contents
+    // Delete the temp directory and all its contents
     try {
-        fs::remove_all(copyFromPath); // Recursively delete the directory and its contents
+        fs::remove_all(tempDir); // Recursively delete the directory and its contents
     } catch (const std::exception& e) {
         (void)(e);
         MessageBox(nullptr,
