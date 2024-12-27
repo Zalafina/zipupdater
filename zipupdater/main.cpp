@@ -92,13 +92,19 @@ bool extractZip(const std::string &zipFile, const std::string &outputDir) {
 }
 
 bool copyDirectory(const fs::path& source, const fs::path& destination) {
+    if (!fs::exists(source) || !fs::is_directory(source)) {
+#ifdef DEBUG_LOG_ON
+        std::cerr << "Error: Source path does not exist or is not a directory." << std::endl;
+#endif
+        return false;
+    }
+
     try {
         fs::create_directories(destination);
-        for (const auto& entry : fs::recursive_directory_iterator(source)) {
-            const auto& path = entry.path();
-            auto relativePathStr = path.lexically_relative(source).string();
-            fs::copy(path, destination / relativePathStr, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
-        }
+        fs::copy(source, destination, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+#ifdef DEBUG_LOG_ON
+        std::cout << "Directory copied successfully!" << std::endl;
+#endif
     } catch (fs::filesystem_error& e) {
         (void)(e);
 #ifdef DEBUG_LOG_ON
@@ -163,6 +169,9 @@ int main(int argc, char* argv[]) {
     // Extract the ZIP file
     std::string currentPath = "zipupdater_tempdir";
     if (!extractZip(zipFilePath, currentPath)) {
+        if (fs::exists(tempDir)) {
+            fs::remove_all(tempDir); // Remove all contents in zipupdater_tempdir
+        }
         MessageBox(nullptr,
                    useChinese ? L"解压 ZIP 文件时发生错误！" : L"An error occurred while extracting the ZIP file!",
                    L"ZipUpdater",
@@ -172,6 +181,9 @@ int main(int argc, char* argv[]) {
 
     // Copy the files
     if (!copyDirectory(copyFromPath, copyToPath)) {
+        if (fs::exists(tempDir)) {
+            fs::remove_all(tempDir); // Remove all contents in zipupdater_tempdir
+        }
         MessageBox(nullptr,
                    useChinese ? L"复制文件到目标路径失败！" : L"Failed to copy files to the target path.",
                    L"ZipUpdater",
@@ -181,7 +193,9 @@ int main(int argc, char* argv[]) {
 
     // Delete the temp directory and all its contents
     try {
-        fs::remove_all(tempDir); // Recursively delete the directory and its contents
+        if (fs::exists(tempDir)) {
+            fs::remove_all(tempDir); // Remove all contents in zipupdater_tempdir
+        }
     } catch (const std::exception& e) {
         (void)(e);
         MessageBox(nullptr,

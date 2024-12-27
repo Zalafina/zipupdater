@@ -18,7 +18,7 @@ QMAKE_CXXFLAGS *= -utf-8
 QMAKE_LFLAGS *= /ENTRY:mainCRTStartup
 QMAKE_LFLAGS_DEBUG *= /NODEFAULTLIB:msvcrt.lib
 
-LIBS += -L$$PWD/win_lib
+# LIBS += -L$$PWD/win_lib
 LIBS += User32.lib
 
 LIBS += -L$$PWD/zlib-ng/lib
@@ -28,7 +28,6 @@ INCLUDEPATH += $$PWD/zlib-ng/include
 
 HEADERS += \
     zlib-ng/include/zlib-ng.h
-
 
 DEFINES += _WIN32_WINNT=0x0601
 DEFINES += HAVE_ZLIB
