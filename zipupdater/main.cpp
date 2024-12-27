@@ -170,8 +170,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // copyFromPath设置为 zipupdater_tempdir\<copyFromPath>
-
     // Copy the files
     if (!copyDirectory(copyFromPath, copyToPath)) {
         MessageBox(nullptr,
