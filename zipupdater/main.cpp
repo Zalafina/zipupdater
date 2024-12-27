@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
         MessageBox(nullptr,
                    useChinese ? L"ZIP 文件不存在！" : L"The ZIP file does not exist!",
                    L"ZipUpdater",
-                   MB_ICONERROR);
+                   MB_ICONWARNING);
         return 1;
     }
 
