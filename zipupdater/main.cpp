@@ -17,6 +17,20 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+std::string ConvertWStringToString(const std::wstring& wstr) {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, const_cast<LPWSTR>(wstr.c_str()), -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed - 1, 0); // -1 to exclude the null terminator
+    WideCharToMultiByte(CP_UTF8, 0, const_cast<LPWSTR>(wstr.c_str()), -1, &strTo[0], size_needed - 1, NULL, NULL); // -1 to exclude the null terminator
+    return strTo;
+}
+
+std::wstring ConvertStringToWString(const std::string& str) {
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    std::wstring wstrTo(size_needed - 1, 0); // -1 to exclude the null terminator
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstrTo[0], size_needed - 1); // -1 to exclude the null terminator
+    return wstrTo;
+}
+
 // Function to convert GBK encoded std::string to UTF-8 std::string
 std::string gbkToUtf8(const std::string &gbkStr) {
     // Step 1: Convert GBK to UTF-16 (wstring)
@@ -120,8 +134,8 @@ int main(int argc, char* argv[]) {
     SetProcessDPIAware();
 
     // Check for the correct number of arguments
-    if ((argc < 4) || (argc > 5)) {
-        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path> [--chinese]", L"ZipUpdater", MB_ICONWARNING);
+    if ((argc < 4) || (argc > 6)) {
+        MessageBox(nullptr, L"Usage: zipupdater.exe <zip_path> <copyfrom_path> <copyto_path> [executable_path] [--chinese]", L"ZipUpdater", MB_ICONWARNING);
         return 1;
     }
 
@@ -136,7 +150,19 @@ int main(int argc, char* argv[]) {
     std::string zipFilePath = gbkToUtf8(zipFilePath_ori);
     std::string copyFromPath = argv[2];
     std::string copyToPath = argv[3];
+    std::string executablePath;
     bool useChinese = (argc == 5 && std::string(argv[4]) == "--chinese");
+
+    if (argc == 5) {
+        if (std::string(argv[4]) == "--chinese") {
+            useChinese = true;
+        } else {
+            executablePath = argv[4];
+        }
+    } else if (argc == 6) {
+        executablePath = argv[4];
+        useChinese = (std::string(argv[5]) == "--chinese");
+    }
 
     // Check if the ZIP file exists
     if (!fs::exists(zipFilePath_ori)) {
@@ -199,10 +225,35 @@ int main(int argc, char* argv[]) {
     } catch (const std::exception& e) {
         (void)(e);
         MessageBox(nullptr,
-                   useChinese ? L"删除源目录时发生错误！" : L"An error occurred while deleting the copyfrom directory!",
+                   useChinese ? L"删除临时目录时发生错误！" : L"An error occurred while deleting the temporary directory!",
                    L"ZipUpdater",
                    MB_ICONERROR);
-        return 1;
+    }
+
+    // Run the executable if provided
+    if (!executablePath.empty()) {
+        if (!fs::exists(executablePath)) {
+            MessageBox(nullptr,
+                       useChinese ? L"指定的可执行文件不存在！" : L"The executable file does not exist!",
+                       L"ZipUpdater",
+                       MB_ICONWARNING);
+            return 1;
+        }
+
+        std::wstring executablePathW = ConvertStringToWString(executablePath);
+        STARTUPINFO si = { sizeof(si) };
+        PROCESS_INFORMATION pi;
+        if (!CreateProcess(nullptr, const_cast<LPWSTR>(executablePathW.c_str()), nullptr, nullptr, FALSE, DETACHED_PROCESS, nullptr, nullptr, &si, &pi)) {
+            MessageBox(nullptr,
+                       useChinese ? L"运行可执行文件时发生错误！" : L"An error occurred while running the executable!",
+                       L"ZipUpdater",
+                       MB_ICONERROR);
+        }
+        else {
+            // Close handles immediately to detach the process
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
     }
 
     // Show success message
